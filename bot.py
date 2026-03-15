@@ -6,9 +6,10 @@ from datetime import timezone, timedelta
 from pyrogram import Client, filters, enums, __version__ as pyrogram_version
 from pyrogram.types import Message, BotCommand
 from pyrogram.errors import FloodWait, RPCError
-from config import API_ID, API_HASH, BOT_TOKEN, LOG_CHANNEL, ADMINS
+from config import API_ID, API_HASH, BOT_TOKEN, LOG_CHANNEL
 from database.db import db
 from logger import LOGGER
+from cantarella.auth import admin_filter
 
 # Keep-alive server (Render / Heroku)
 try:
@@ -163,7 +164,7 @@ async def new_user_log(bot: Client, message: Message):
     
     USER_CACHE.add(user.id)
 
-@BotInstance.on_message(filters.command("cmd") & filters.user(ADMINS))
+@BotInstance.on_message(filters.command("cmd") & admin_filter)
 async def update_commands(bot: Client, message: Message):
     try:
         await bot.set_bot_commands_list()

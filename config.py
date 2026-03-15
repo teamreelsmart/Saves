@@ -8,6 +8,7 @@ Please retain this credit if you use or modify this project.
 """
 
 import os
+import re
 
 
 # ==============================
@@ -23,8 +24,21 @@ API_HASH = os.environ.get("API_HASH", "8419dab9aac814d0dd1f0a9ed3e63a3e")
 # Admin Configuration
 # ==============================
 
-# Add admin user IDs separated by commas in environment variables
-ADMINS = [int(admin) for admin in os.environ.get("ADMINS", "6891095964").split(",") if admin]
+# Add admin user IDs in env: comma/space/newline supported (example: "12345, 67890")
+def _parse_admin_ids(raw_admins: str):
+    admin_ids = []
+    for token in re.split(r"[\s,]+", raw_admins.strip()):
+        if not token:
+            continue
+        token = token.strip().strip("[]")
+        if token.startswith("@"):
+            token = token[1:]
+        if token.isdigit():
+            admin_ids.append(int(token))
+    return admin_ids
+
+
+ADMINS = _parse_admin_ids(os.environ.get("ADMINS", "6891095964"))
 
 
 # ==============================
