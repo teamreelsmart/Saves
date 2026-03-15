@@ -5,8 +5,9 @@ from pyrogram.types import (
     InlineKeyboardMarkup,
     InlineKeyboardButton
 )
+
+from cantarella.auth import admin_filter
 from database.db import db
-from config import ADMINS
 from datetime import date, datetime, timedelta
 from logger import LOGGER
 
@@ -136,7 +137,7 @@ async def show_premium_plans(message_or_query):
 # ADMIN COMMANDS - Secure & Detailed
 # ======================================================
 
-@Client.on_message(filters.command("add_premium") & filters.user(ADMINS) & filters.private)
+@Client.on_message(filters.command("add_premium") & admin_filter & filters.private)
 async def add_premium_admin(client: Client, message: Message):
     if len(message.command) < 3:
         return await message.reply_text(
@@ -172,7 +173,7 @@ async def add_premium_admin(client: Client, message: Message):
     except Exception as e:
         await message.reply_text(f"❌ <b>Error:</b> {e}", parse_mode=enums.ParseMode.HTML)
 
-@Client.on_message(filters.command("remove_premium") & filters.user(ADMINS) & filters.private)
+@Client.on_message(filters.command("remove_premium") & admin_filter & filters.private)
 async def remove_premium_admin(client: Client, message: Message):
     if len(message.command) < 2:
         return await message.reply_text(

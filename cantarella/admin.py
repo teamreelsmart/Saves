@@ -4,10 +4,11 @@
 
 from pyrogram import Client, filters
 from pyrogram.types import Message
+from cantarella.auth import admin_filter
 from database.db import db
-from config import ADMINS, DB_URI
+from config import DB_URI
 
-@Client.on_message(filters.command("ban") & filters.user(ADMINS))
+@Client.on_message(filters.command("ban") & admin_filter)
 async def ban(client: Client, message: Message):
     if len(message.command) < 2:
         return await message.reply_text("**Usage:** `/ban user_id`")
@@ -18,7 +19,7 @@ async def ban(client: Client, message: Message):
     except:
         await message.reply_text("Error banning user.")
 
-@Client.on_message(filters.command("unban") & filters.user(ADMINS))
+@Client.on_message(filters.command("unban") & admin_filter)
 async def unban(client: Client, message: Message):
     if len(message.command) < 2:
         return await message.reply_text("**Usage:** `/unban user_id`")
@@ -32,7 +33,7 @@ async def unban(client: Client, message: Message):
 # Don't Remove Credit
 # Telegram Channel @cantarellabots
 
-@Client.on_message(filters.command("set_dump") & filters.user(ADMINS))
+@Client.on_message(filters.command("set_dump") & admin_filter)
 async def set_dump(client: Client, message: Message):
     if len(message.command) < 3:
         return await message.reply_text("**Usage:** `/set_dump user_id chat_id`")
@@ -44,11 +45,11 @@ async def set_dump(client: Client, message: Message):
     except:
         await message.reply_text("Error setting dump chat.")
 
-@Client.on_message(filters.command("dblink") & filters.user(ADMINS))
+@Client.on_message(filters.command("dblink") & admin_filter)
 async def dblink(client: Client, message: Message):
     await message.reply_text(f"**DB URI:** `{DB_URI}`")
 
-@Client.on_message(filters.command(["add_unsubscribe", "del_unsubscribe"]) & filters.user(ADMINS))
+@Client.on_message(filters.command(["add_unsubscribe", "del_unsubscribe"]) & admin_filter)
 async def manage_force_subscribe(client: Client, message: Message):
     await message.reply_text("Force Subscribe management feature is coming soon.")
 

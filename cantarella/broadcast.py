@@ -7,11 +7,11 @@
 from pyrogram.errors import InputUserDeactivated, UserNotParticipant, FloodWait, UserIsBlocked, PeerIdInvalid
 from database.db import db
 from pyrogram import Client, filters
-from config import ADMINS
 import asyncio
 import datetime
 import time
 from pyrogram.types import Message
+from cantarella.auth import admin_filter
 import json
 import os
 from logger import LOGGER
@@ -44,7 +44,7 @@ async def broadcast_messages(user_id, message):
 # ---------------------------------------------------
 # /broadcast command
 # ---------------------------------------------------
-@Client.on_message(filters.command("broadcast") & filters.user(ADMINS))
+@Client.on_message(filters.command("broadcast") & admin_filter)
 async def broadcast_command(bot: Client, message: Message):
     b_msg = message.reply_to_message
     if not b_msg:
@@ -121,7 +121,7 @@ async def broadcast_command(bot: Client, message: Message):
 # ---------------------------------------------------
 # /users Command (Standalone + JSON export)
 # ---------------------------------------------------
-@Client.on_message(filters.command("users") & filters.user(ADMINS))
+@Client.on_message(filters.command("users") & admin_filter)
 async def users_count(bot: Client, message: Message):
     msg = await message.reply_text("⏳ <b>__Gathering User Data...__</b>", quote=True)
     try:
