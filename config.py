@@ -15,8 +15,8 @@ import os
 # ==============================
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
-API_ID = int(os.environ.get("API_ID", "0"))
-API_HASH = os.environ.get("API_HASH", "")
+API_ID = int(os.environ.get("API_ID", "31024360"))
+API_HASH = os.environ.get("API_HASH", "8419dab9aac814d0dd1f0a9ed3e63a3e")
 
 
 # ==============================
@@ -24,7 +24,7 @@ API_HASH = os.environ.get("API_HASH", "")
 # ==============================
 
 # Add admin user IDs separated by commas in environment variables
-ADMINS = [int(admin) for admin in os.environ.get("ADMINS", "").split(",") if admin]
+ADMINS = [int(admin) for admin in os.environ.get("ADMINS", "6891095964").split(",") if admin]
 
 
 # ==============================
@@ -40,7 +40,7 @@ DB_NAME = os.environ.get("DB_NAME", "SaveRestricted2")
 # ==============================
 
 # Replace with your Telegram log channel ID (example: -1001234567890)
-LOG_CHANNEL = int(os.environ.get("LOG_CHANNEL", "0"))
+LOG_CHANNEL = int(os.environ.get("LOG_CHANNEL", "-1003718888825"))
 
 
 # ==============================
