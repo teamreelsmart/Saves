@@ -32,12 +32,15 @@ HELP_TXT = """<b>🚀 Welcome to cantarella Save Restricted Bot - Complete Guide
 
 <blockquote><b>/login</b> — Login with session string (for restricted channels)</blockquote>
 <blockquote><b>/logout</b> — Logout current session</blockquote>
+<blockquote><b>/batch</b> — Batch mode usage guide</blockquote>
 <blockquote><b>/cancel</b> — Cancel ongoing batch save</blockquote>
 
 <blockquote><b>/myplan</b> — View your plan status & quota</blockquote>
 <blockquote><b>/premium</b> — Premium plans & benefits</blockquote>
 
-<blockquote><b>/setchat &lt;chat_id&gt;</b> — Set dump chat (auto-forward saved files)</blockquote>
+<blockquote><b>/setchat &lt;chat_id&gt;</b> — Set dump chat (auto-copy saved files)</blockquote>
+<blockquote><b>/adddestination &lt;chat_id&gt;</b> — Set destination (bot must be admin)</blockquote>
+<blockquote><b>/removedestination &lt;chat_id&gt;</b> — Remove destination</blockquote>
 <blockquote><b>/setchat clear</b> — Remove dump chat</blockquote>
 
 <blockquote><b>/set_caption &lt;text&gt;</b> — Set custom caption (use {filename} & {size})</blockquote>
@@ -68,6 +71,7 @@ COMMANDS_TXT = """<b>📜 All Available Commands</b>
 
 /login  — Connect account
 /logout — Disconnect account
+/batch — Batch usage
 /cancel — Stop current task
 </blockquote>
 
@@ -80,6 +84,8 @@ COMMANDS_TXT = """<b>📜 All Available Commands</b>
 <b>📤 Dump Chat</b>
 <blockquote>
 /setchat &lt;chat_id&gt; — Set forward destination
+/adddestination &lt;chat_id&gt; — Set destination (admin required)
+/removedestination &lt;chat_id&gt; — Remove destination
 /setchat clear — Remove dump chat
 </blockquote>
 

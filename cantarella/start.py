@@ -314,6 +314,17 @@ async def settings_panel(client, callback_query):
         reply_markup=buttons,
         parse_mode=enums.ParseMode.HTML
     )
+@Client.on_message(filters.command(["batch"]) & filters.private)
+async def batch_help(client: Client, message: Message):
+    await message.reply_text(
+        "<b>📦 Batch Mode Guide</b>\n\n"
+        "<b>बस लिंक में message range भेजो:</b>\n"
+        "<code>https://t.me/channel_username/120-150</code>\n"
+        "<code>https://t.me/c/1234567890/120-150</code>\n\n"
+        "<b>Tip:</b> <i>/cancel से current batch रोक सकते हो।</i>",
+        parse_mode=enums.ParseMode.HTML
+    )
+
 @Client.on_message(filters.text & filters.private & ~filters.regex("^/"))
 async def save(client: Client, message: Message):
     if "https://t.me/" in message.text:
@@ -349,12 +360,13 @@ async def save(client: Client, message: Message):
             if is_public_link:
                 username = datas[3]
                 try:
-                    await client.copy_message(
+                    copied = await client.copy_message(
                         chat_id=message.chat.id,
                         from_chat_id=username,
                         message_id=msgid,
                         reply_to_message_id=message.id
                     )
+                    await mirror_to_dump_chat(client, message.from_user.id, copied.chat.id, copied.id)
                     await db.add_traffic(message.from_user.id)
                     await asyncio.sleep(1)
                     continue
@@ -394,6 +406,27 @@ async def save(client: Client, message: Message):
                 await handle_restricted_content(client, acc, message, username, msgid)
             await asyncio.sleep(2)
         batch_temp.IS_BATCH[message.from_user.id] = True
+async def mirror_to_dump_chat(client: Client, user_id: int, source_chat_id: int, source_message_id: int):
+    dump_chat = await db.get_dump_chat(user_id)
+    if not dump_chat:
+        return
+    try:
+        member = await client.get_chat_member(dump_chat, "me")
+        if member.status not in [enums.ChatMemberStatus.OWNER, enums.ChatMemberStatus.ADMINISTRATOR]:
+            logger.warning(f"Bot is not admin in dump chat {dump_chat} for user {user_id}")
+            return
+    except Exception as e:
+        logger.warning(f"Dump chat admin check failed for {dump_chat}: {e}")
+        return
+    try:
+        await client.copy_message(
+            chat_id=dump_chat,
+            from_chat_id=source_chat_id,
+            message_id=source_message_id
+        )
+    except Exception as e:
+        logger.warning(f"Failed to mirror message to dump chat {dump_chat}: {e}")
+
 async def handle_restricted_content(client: Client, acc, message: Message, chat_target, msgid):
     try:
         msg: Message = await acc.get_messages(chat_target, msgid)
@@ -423,7 +456,8 @@ async def handle_restricted_content(client: Client, acc, message: Message, chat_
             return
     if msg_type == "Text":
         try:
-            await client.send_message(message.chat.id, msg.text, entities=msg.entities, parse_mode=enums.ParseMode.HTML)
+            sent = await client.send_message(message.chat.id, msg.text, entities=msg.entities, parse_mode=enums.ParseMode.HTML)
+            await mirror_to_dump_chat(client, message.from_user.id, sent.chat.id, sent.id)
             return
         except:
             return
@@ -475,14 +509,16 @@ async def handle_restricted_content(client: Client, acc, message: Message, chat_
             if msg.caption:
                 final_caption += f"\n\n{msg.caption}"
         if msg_type == "Document":
-            await client.send_document(message.chat.id, file, thumb=ph_path, caption=final_caption, progress=progress, progress_args=[message, "up"])
+            sent = await client.send_document(message.chat.id, file, thumb=ph_path, caption=final_caption, progress=progress, progress_args=[message, "up"])
         elif msg_type == "Video":
-            await client.send_video(message.chat.id, file, duration=msg.video.duration, width=msg.video.width, height=msg.video.height, thumb=ph_path, caption=final_caption, progress=progress, progress_args=[message, "up"])
+            sent = await client.send_video(message.chat.id, file, duration=msg.video.duration, width=msg.video.width, height=msg.video.height, thumb=ph_path, caption=final_caption, progress=progress, progress_args=[message, "up"])
         elif msg_type == "Audio":
-            await client.send_audio(message.chat.id, file, thumb=ph_path, caption=final_caption, progress=progress, progress_args=[message, "up"])
+            sent = await client.send_audio(message.chat.id, file, thumb=ph_path, caption=final_caption, progress=progress, progress_args=[message, "up"])
         elif msg_type == "Photo":
-            await client.send_photo(message.chat.id, file, caption=final_caption)
-       
+            sent = await client.send_photo(message.chat.id, file, caption=final_caption)
+
+        await mirror_to_dump_chat(client, message.from_user.id, sent.chat.id, sent.id)
+
     except Exception as e:
          await smsg.edit(f"Upload Failed: {e}")
     if os.path.exists(f'{message.id}upstatus.txt'): os.remove(f'{message.id}upstatus.txt')

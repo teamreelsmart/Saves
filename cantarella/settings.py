@@ -3,6 +3,14 @@ from pyrogram import Client, filters, enums
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from database.db import db
 from cantarella.strings import COMMANDS_TXT
+
+
+async def _validate_dump_destination(client: Client, chat_id: int):
+    chat = await client.get_chat(chat_id)
+    member = await client.get_chat_member(chat_id, "me")
+    if member.status not in [enums.ChatMemberStatus.OWNER, enums.ChatMemberStatus.ADMINISTRATOR]:
+        raise ValueError("Bot is not admin in this chat")
+    return chat
 # ======================================================
 # /settings - Enhanced Professional Settings Menu
 # ======================================================
@@ -70,11 +78,8 @@ async def set_dump_chat(client: Client, message: Message):
         return await message.reply_text("✅ <b>Dump Chat Cleared Successfully</b>", parse_mode=enums.ParseMode.HTML)
     try:
         chat_id = int(arg)
-        try:
-            chat = await client.get_chat(chat_id)
-            chat_title = chat.title or "Private Chat"
-        except:
-            chat_title = "Unknown Chat"
+        chat = await _validate_dump_destination(client, chat_id)
+        chat_title = chat.title or "Private Chat"
         await db.set_dump_chat(user_id, chat_id)
         await message.reply_text(
             f"✅ <b>Dump Chat Set Successfully</b>\n\n"
@@ -86,6 +91,49 @@ async def set_dump_chat(client: Client, message: Message):
         await message.reply_text("❌ <b>Invalid Chat ID</b>\n\n<i>Must be a number (e.g., -1001234567890)</i>", parse_mode=enums.ParseMode.HTML)
     except Exception as e:
         await message.reply_text(f"❌ <b>Unable to Access Chat</b>\n<i>{e}</i>", parse_mode=enums.ParseMode.HTML)
+
+@Client.on_message(filters.command("adddestination") & filters.private)
+async def add_destination(client: Client, message: Message):
+    if len(message.command) < 2:
+        return await message.reply_text("Usage: <code>/adddestination -1001234567890</code>", parse_mode=enums.ParseMode.HTML)
+
+    user_id = message.from_user.id
+    if not await db.is_user_exist(user_id):
+        await db.add_user(user_id, message.from_user.first_name)
+    try:
+        chat_id = int(message.command[1])
+    except ValueError:
+        return await message.reply_text("❌ Invalid chat id.", parse_mode=enums.ParseMode.HTML)
+    chat = await _validate_dump_destination(client, chat_id)
+    await db.set_dump_chat(user_id, chat_id)
+    await message.reply_text(
+        f"✅ Destination set to <code>{chat_id}</code> ({chat.title or 'Private Chat'})",
+        parse_mode=enums.ParseMode.HTML
+    )
+
+
+@Client.on_message(filters.command("removedestination") & filters.private)
+async def remove_destination(client: Client, message: Message):
+    if len(message.command) < 2:
+        return await message.reply_text("Usage: <code>/removedestination -1001234567890</code>", parse_mode=enums.ParseMode.HTML)
+
+    user_id = message.from_user.id
+    if not await db.is_user_exist(user_id):
+        await db.add_user(user_id, message.from_user.first_name)
+    try:
+        chat_id = int(message.command[1])
+    except ValueError:
+        return await message.reply_text("❌ Invalid chat id.", parse_mode=enums.ParseMode.HTML)
+    current = await db.get_dump_chat(user_id)
+    if current != chat_id:
+        return await message.reply_text(
+            f"⚠️ Current destination is <code>{current}</code>. Provided chat id does not match.",
+            parse_mode=enums.ParseMode.HTML
+        )
+
+    await db.set_dump_chat(user_id, None)
+    await message.reply_text("✅ Destination removed.", parse_mode=enums.ParseMode.HTML)
+
 # ======================================================
 # Callbacks - Full Settings Navigation
 # ======================================================

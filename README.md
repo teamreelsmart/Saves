@@ -100,6 +100,16 @@
 
 ---
 
+## ☁️ Render (Blueprint Deploy)
+
+1. Push this repo to GitHub.
+2. In Render, click **New +** → **Blueprint**.
+3. Select this repo (uses `render.yaml`).
+4. Fill required env vars: `API_ID`, `API_HASH`, `BOT_TOKEN`, `DB_URI`, `ADMINS`, `LOG_CHANNEL`.
+5. Deploy worker service.
+
+> `render.yaml` is included so this repo is directly deployable on Render.
+
 ## 💻 Local Setup
 
 <details open>
@@ -150,6 +160,7 @@ docker run -d --env-file .env save-restricted-bot
 | `/help`     | Get help information     |
 | `/login`    | Login to your account    |
 | `/logout`   | Logout from your account |
+| `/batch`    | Batch mode usage guide   |
 | `/cancel`   | Cancel batch process     |
 | `/settings` | Open settings menu       |
 | `/myplan`   | Check your current plan  |
@@ -169,6 +180,8 @@ docker run -d --env-file .env save-restricted-bot
 - `/set_repl_word`
 - `/rem_repl_word`
 - `/setchat`
+- `/adddestination`
+- `/removedestination`
 
 </details>
 
