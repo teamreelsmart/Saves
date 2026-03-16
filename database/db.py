@@ -30,6 +30,14 @@ class Database:
     async def total_users_count(self):
         count = await self.col.count_documents({})
         return count
+
+    async def get_db_storage_stats(self):
+        stats = await self.db.command("dbStats", scale=1024 * 1024)
+        return {
+            "data_size_mb": stats.get("dataSize", 0),
+            "storage_size_mb": stats.get("storageSize", 0),
+            "collections": stats.get("collections", 0),
+        }
     async def get_all_users(self):
         return self.col.find({})
     async def delete_user(self, user_id):

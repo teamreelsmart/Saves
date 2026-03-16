@@ -136,6 +136,8 @@ class Bot(Client):
             BotCommand("rem_del_word", "Remove delete word"),
             BotCommand("set_repl_word", "Add replace word"),
             BotCommand("rem_repl_word", "Remove replace word"),
+            BotCommand("status", "[Admin] Bot/DB status"),
+            BotCommand("restart", "[Admin] Restart bot and stop tasks"),
         ]
         await self.set_bot_commands(commands)
 
