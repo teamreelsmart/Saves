@@ -180,7 +180,7 @@ docker run -d --env-file .env save-restricted-bot
 - `/set_repl_word`
 - `/rem_repl_word`
 - `/setchat`
-- `/adddestination`
+- `/adddestination` (premium users only)
 - `/removedestination`
 
 </details>
