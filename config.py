@@ -38,7 +38,7 @@ def _parse_admin_ids(raw_admins: str):
     return admin_ids
 
 
-ADMINS = _parse_admin_ids(os.environ.get("ADMINS", "6891095964"))
+ADMINS = _parse_admin_ids(os.environ.get("ADMINS", ""))
 
 
 # ==============================
@@ -54,7 +54,7 @@ DB_NAME = os.environ.get("DB_NAME", "SaveRestricted2")
 # ==============================
 
 # Replace with your Telegram log channel ID (example: -1001234567890)
-LOG_CHANNEL = int(os.environ.get("LOG_CHANNEL", "-1003718888825"))
+LOG_CHANNEL = int(os.environ.get("LOG_CHANNEL", ""))
 
 
 # ==============================
