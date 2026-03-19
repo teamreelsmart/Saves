@@ -105,7 +105,7 @@ COMMANDS_TXT = """<b>📜 All Available Commands</b>
 </blockquote>
 
 <b>🔥 Premium = Unlimited Everything</b>
-<i>Contact @SnapLoverXBot to upgrade!</i>
+<i>Contact @TheOrviz to upgrade!</i>
 """
 
 # Dont remove Credits
