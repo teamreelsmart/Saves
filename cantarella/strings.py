@@ -39,7 +39,7 @@ HELP_TXT = """<b>🚀 Welcome to cantarella Save Restricted Bot - Complete Guide
 <blockquote><b>/premium</b> — Premium plans & benefits</blockquote>
 
 <blockquote><b>/setchat &lt;chat_id&gt;</b> — Set dump chat (auto-copy saved files)</blockquote>
-<blockquote><b>/adddestination &lt;chat_id&gt;</b> — Set destination (bot must be admin)</blockquote>
+<blockquote><b>/adddestination &lt;chat_id&gt;</b> — Premium only destination set (bot must be admin)</blockquote>
 <blockquote><b>/removedestination &lt;chat_id&gt;</b> — Remove destination</blockquote>
 <blockquote><b>/setchat clear</b> — Remove dump chat</blockquote>
 
@@ -84,7 +84,7 @@ COMMANDS_TXT = """<b>📜 All Available Commands</b>
 <b>📤 Dump Chat</b>
 <blockquote>
 /setchat &lt;chat_id&gt; — Set forward destination
-/adddestination &lt;chat_id&gt; — Set destination (admin required)
+/adddestination &lt;chat_id&gt; — Premium-only destination set (admin required)
 /removedestination &lt;chat_id&gt; — Remove destination
 /setchat clear — Remove dump chat
 </blockquote>

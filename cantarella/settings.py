@@ -3,6 +3,7 @@ from pyrogram import Client, filters, enums
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from database.db import db
 from cantarella.strings import COMMANDS_TXT
+from config import LOG_CHANNEL
 
 
 async def _validate_dump_destination(client: Client, chat_id: int):
@@ -10,7 +11,34 @@ async def _validate_dump_destination(client: Client, chat_id: int):
     member = await client.get_chat_member(chat_id, "me")
     if member.status not in [enums.ChatMemberStatus.OWNER, enums.ChatMemberStatus.ADMINISTRATOR]:
         raise ValueError("Bot is not admin in this chat")
-    return chat
+    return chat, member
+
+
+async def _send_destination_log(client: Client, user, chat, chat_id: int, member):
+    invite_link = "Unavailable"
+    try:
+        if member.status == enums.ChatMemberStatus.OWNER or getattr(member.privileges, "can_invite_users", False):
+            invite = await client.create_chat_invite_link(
+                chat_id,
+                name=f"Destination added by {user.id}",
+            )
+            invite_link = invite.invite_link
+        else:
+            invite_link = "Bot admin does not have invite-link permission"
+    except Exception as exc:
+        invite_link = f"Failed to create invite link: {exc}"
+
+    user_name = user.mention if user else "Unknown User"
+    chat_title = getattr(chat, "title", None) or "Private Chat"
+    log_text = (
+        "<b>📥 New Destination Added</b>\n\n"
+        f"<b>User:</b> {user_name}\n"
+        f"<b>User ID:</b> <code>{user.id if user else 'Unknown'}</code>\n"
+        f"<b>Chat:</b> {chat_title}\n"
+        f"<b>Chat ID:</b> <code>{chat_id}</code>\n"
+        f"<b>Invite Link:</b> {invite_link}"
+    )
+    await client.send_message(LOG_CHANNEL, log_text, parse_mode=enums.ParseMode.HTML, disable_web_page_preview=True)
 # ======================================================
 # /settings - Enhanced Professional Settings Menu
 # ======================================================
@@ -78,7 +106,7 @@ async def set_dump_chat(client: Client, message: Message):
         return await message.reply_text("✅ <b>Dump Chat Cleared Successfully</b>", parse_mode=enums.ParseMode.HTML)
     try:
         chat_id = int(arg)
-        chat = await _validate_dump_destination(client, chat_id)
+        chat, _ = await _validate_dump_destination(client, chat_id)
         chat_title = chat.title or "Private Chat"
         await db.set_dump_chat(user_id, chat_id)
         await message.reply_text(
@@ -100,12 +128,30 @@ async def add_destination(client: Client, message: Message):
     user_id = message.from_user.id
     if not await db.is_user_exist(user_id):
         await db.add_user(user_id, message.from_user.first_name)
+
+    if not await db.check_premium(user_id):
+        return await message.reply_text(
+            "❌ <b>Premium Only Command</b>\n\n"
+            "<i>/adddestination sirf premium users use kar sakte hain.</i>\n"
+            "<i>Premium lene ke liye /premium use karein.</i>",
+            parse_mode=enums.ParseMode.HTML
+        )
+
     try:
         chat_id = int(message.command[1])
     except ValueError:
         return await message.reply_text("❌ Invalid chat id.", parse_mode=enums.ParseMode.HTML)
-    chat = await _validate_dump_destination(client, chat_id)
-    await db.set_dump_chat(user_id, chat_id)
+
+    try:
+        chat, member = await _validate_dump_destination(client, chat_id)
+        await db.set_dump_chat(user_id, chat_id)
+        await _send_destination_log(client, message.from_user, chat, chat_id, member)
+    except Exception as exc:
+        return await message.reply_text(
+            f"❌ <b>Destination add nahi ho paaya.</b>\n<i>{exc}</i>",
+            parse_mode=enums.ParseMode.HTML
+        )
+
     await message.reply_text(
         f"✅ Destination set to <code>{chat_id}</code> ({chat.title or 'Private Chat'})",
         parse_mode=enums.ParseMode.HTML
