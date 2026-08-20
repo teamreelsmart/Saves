@@ -501,13 +501,21 @@ async def handle_restricted_content(client: Client, acc, message: Message, chat_
                     ph_path = await acc.download_media(msg.document.thumbs[0].file_id, file_name=f"{temp_dir}/thumb.jpg")
             except:
                 pass
+        original_caption = msg.caption or ""
         custom_caption = await db.get_caption(message.from_user.id)
         if custom_caption:
-            final_caption = custom_caption.format(filename=file.split("/")[-1], size=humanbytes(file_size))
+            final_caption = custom_caption.format(
+                filename=file.split("/")[-1],
+                size=humanbytes(file_size),
+                orignal_caption=original_caption,
+                original_caption=original_caption,
+            )
+            if not final_caption:
+                final_caption = None
         else:
             final_caption = script.CAPTION.format(file_name=file.split("/")[-1])
-            if msg.caption:
-                final_caption += f"\n\n{msg.caption}"
+            if original_caption:
+                final_caption += f"\n\n{original_caption}"
         if msg_type == "Document":
             sent = await client.send_document(message.chat.id, file, thumb=ph_path, caption=final_caption, progress=progress, progress_args=[message, "up"])
         elif msg_type == "Video":

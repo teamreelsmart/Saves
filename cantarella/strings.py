@@ -16,7 +16,7 @@ HELP_TXT = """<b>🚀 Welcome to cantarella Save Restricted Bot - Complete Guide
 • The bot will save all files/media in the range.
 
 <b>3. Features</b>
-• Custom captions with {filename} & {size} placeholders
+• Custom captions with {filename}, {size} & {orignal_caption} placeholders
 • Custom thumbnails
 • Auto-forward to your dump chat
 • Daily token system (10 saves/day for free users)
@@ -43,7 +43,7 @@ HELP_TXT = """<b>🚀 Welcome to cantarella Save Restricted Bot - Complete Guide
 <blockquote><b>/removedestination &lt;chat_id&gt;</b> — Remove destination</blockquote>
 <blockquote><b>/setchat clear</b> — Remove dump chat</blockquote>
 
-<blockquote><b>/set_caption &lt;text&gt;</b> — Set custom caption (use {filename} & {size})</blockquote>
+<blockquote><b>/set_caption &lt;text&gt;</b> — Set custom caption (use {filename}, {size} & {orignal_caption})</blockquote>
 <blockquote><b>/see_caption</b> — Preview current caption</blockquote>
 <blockquote><b>/del_caption</b> — Remove custom caption</blockquote>
 

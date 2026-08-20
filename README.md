@@ -41,7 +41,7 @@
 
 ### ⚙️ Customization
 
-- Set custom captions (`/set_caption`)
+- Set custom captions (`/set_caption`) including original source captions
 - Set custom thumbnails (`/set_thumb`)
 - Auto-delete or replace specific words
 
@@ -168,7 +168,7 @@ docker run -d --env-file .env save-restricted-bot
 
 ### ⚙️ Customization
 
-- `/set_caption`
+- `/set_caption` (use `{orignal_caption}` to send the source message caption)
 - `/see_caption`
 - `/del_caption`
 - `/set_thumb`
