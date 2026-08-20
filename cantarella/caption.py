@@ -22,8 +22,9 @@ async def set_caption(client: Client, message: Message):
             "<code>/set_caption Your Caption Here</code>\n\n"
             "<b>Supported Placeholders:</b>\n"
             "• <code>{filename}</code> : Original File Name\n"
-            "• <code>{size}</code> : File Size\n\n"
-            "<i>Example:</i> <code>/set_caption File: {filename} | Size: {size}</code>",
+            "• <code>{size}</code> : File Size\n"
+            "• <code>{orignal_caption}</code> : Source Message Caption\n\n"
+            "<i>Example:</i> <code>/set_caption {orignal_caption}</code>",
             parse_mode=enums.ParseMode.HTML
         )
 
@@ -34,7 +35,8 @@ async def set_caption(client: Client, message: Message):
     await message.reply_text(
         "<b>✅ Custom Caption Saved!</b>\n\n"
         f"<b>Preview:</b>\n<code>{caption}</code>\n\n"
-        "<i>This caption will be applied to your future downloads.</i>",
+        "<i>This caption will be applied to your future downloads. Use </i>"
+        "<code>{orignal_caption}</code><i> to send the source caption.</i>",
         parse_mode=enums.ParseMode.HTML
     )
 
