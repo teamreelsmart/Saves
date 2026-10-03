@@ -3,8 +3,8 @@ import datetime
 import sys
 import os
 from datetime import timezone, timedelta
-from pyrogram import Client, filters, enums, __version__ as pyrogram_version
-from pyrogram.types import Message, BotCommand
+from pyrogram import Client, StopPropagation, filters, enums, __version__ as pyrogram_version
+from pyrogram.types import CallbackQuery, Message, BotCommand
 from pyrogram.errors import FloodWait, RPCError
 from config import API_ID, API_HASH, BOT_TOKEN, LOG_CHANNEL
 from database.db import db
@@ -142,6 +142,31 @@ class Bot(Client):
         await self.set_bot_commands(commands)
 
 BotInstance = Bot()
+
+BAN_NOTICE = "<b>🚫 You are banned from using this bot.</b>"
+
+
+@BotInstance.on_message(filters.incoming, group=-2)
+async def block_banned_messages(_: Client, message: Message):
+    """Prevent banned users from reaching every command and text handler."""
+    user = message.from_user
+    if not user or not await db.is_banned(user.id):
+        return
+
+    await message.reply_text(BAN_NOTICE)
+    raise StopPropagation
+
+
+@BotInstance.on_callback_query(group=-2)
+async def block_banned_callbacks(_: Client, callback_query: CallbackQuery):
+    """Block button interactions too, not only command messages."""
+    user = callback_query.from_user
+    if not user or not await db.is_banned(user.id):
+        return
+
+    await callback_query.answer("You are banned from using this bot.", show_alert=True)
+    raise StopPropagation
+
 
 @BotInstance.on_message(filters.private & filters.incoming, group=-1)
 async def new_user_log(bot: Client, message: Message):

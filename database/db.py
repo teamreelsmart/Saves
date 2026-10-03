@@ -14,6 +14,7 @@ class Database:
             id = id,
             name = name,
             session = None,
+            is_banned = False,
             daily_usage = 0, # Added: Track saves
             limit_reset_time = None # Added: Track 24h reset time
         )
@@ -91,14 +92,41 @@ class Database:
         return self.col.find({'is_premium': True})
     # Ban Support
     async def ban_user(self, id):
-        await self.col.update_one({'id': int(id)}, {'$set': {'is_banned': True}})
+        user_id = int(id)
+        new_user = self.new_user(user_id, None)
+        new_user.pop('id')
+        new_user.pop('is_banned')
+        # Admins can ban an ID before that person has ever messaged the bot.
+        # Create a complete user record in that case so the ban is not silently
+        # lost because update_one found no matching document.
+        await self.col.update_one(
+            {'id': user_id},
+            {
+                '$set': {'is_banned': True},
+                '$setOnInsert': new_user,
+            },
+            upsert=True,
+        )
         logger.warning(f"User banned: {id}")
+
     async def unban_user(self, id):
-        await self.col.update_one({'id': int(id)}, {'$set': {'is_banned': False}})
+        user_id = int(id)
+        new_user = self.new_user(user_id, None)
+        new_user.pop('id')
+        new_user.pop('is_banned')
+        await self.col.update_one(
+            {'id': user_id},
+            {
+                '$set': {'is_banned': False},
+                '$setOnInsert': new_user,
+            },
+            upsert=True,
+        )
         logger.info(f"User unbanned: {id}")
+
     async def is_banned(self, id):
         user = await self.col.find_one({'id': int(id)})
-        return user.get('is_banned', False)
+        return bool(user and user.get('is_banned', False))
     # Dump Chat Support
     async def set_dump_chat(self, id, chat_id):
         if chat_id is None:
